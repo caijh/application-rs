@@ -1,10 +1,11 @@
 [workspace]
 resolver = "2"
-members = []
+members = ["application-beans"]
 
 [workspace.package]
 name = "application-rs"
 version = "0.1.0"
 edition = "2021"
+repository = "git@github.com:caijh/application-rs.git"
 
 [workspace.dependencies]
