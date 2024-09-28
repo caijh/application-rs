@@ -51,12 +51,10 @@ pub enum ApplicationType {
 pub struct RustApplication {
     pub crate_name: String,
     pub application_type: ApplicationType,
-    pub bootstrap_registry_initializers:
-        Arc<tokio::sync::RwLock<Vec<Box<dyn BootstrapRegistryInitializer>>>>,
-    pub initializers: Arc<tokio::sync::RwLock<Vec<Box<dyn ApplicationContextInitializer>>>>,
-    pub listeners: Arc<tokio::sync::RwLock<Vec<Box<dyn ApplicationListener>>>>,
-    pub servlet_context_initializers:
-        Arc<tokio::sync::RwLock<Vec<Box<dyn ServletContextInitializer>>>>,
+    pub bootstrap_registry_initializers: Arc<RwLock<Vec<Box<dyn BootstrapRegistryInitializer>>>>,
+    pub initializers: Arc<RwLock<Vec<Box<dyn ApplicationContextInitializer>>>>,
+    pub listeners: Arc<RwLock<Vec<Box<dyn ApplicationListener>>>>,
+    pub servlet_context_initializers: Arc<RwLock<Vec<Box<dyn ServletContextInitializer>>>>,
 }
 
 static APPLICATION_RUN_LISTENERS: OnceLock<ApplicationRunListeners> = OnceLock::new();
@@ -440,7 +438,7 @@ impl Application for RustApplication {
         info!(
             "Started {} in {} seconds",
             self.crate_name,
-            duration.as_secs()
+            duration.as_millis()
         );
 
         match result {
