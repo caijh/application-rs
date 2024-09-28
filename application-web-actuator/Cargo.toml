@@ -1,0 +1,10 @@
+[package]
+name = "application-web-actuator"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+application-web = { path = "../application-web" }
+application-web-macros = { path = "../application-web-macros" }
+axum = { workspace = true }
