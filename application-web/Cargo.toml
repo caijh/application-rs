@@ -10,9 +10,13 @@ application-beans = { path = "../application-beans" }
 application-context = { path = "../application-context" }
 application-web-macros = { path = "../application-web-macros" }
 axum = { workspace = true }
+axum-server = { workspace = true }
 inventory = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 askama = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+async-std = { workspace = true }
 [dev-dependencies]
 

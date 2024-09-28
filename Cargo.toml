@@ -36,6 +36,7 @@ dotenvy = "0.15.7"
 async-std = "1.13.0"
 tempfile = "3.12.0"
 axum = "0.7.6"
+axum-server = "0.7"
 askama = { version = "0.12.1", features = ["with-axum"] }
 tower = { version = "0.5.1", features = ["util"] }
 tower-http = { version = "0.6.0", features = ["timeout", "trace"] }

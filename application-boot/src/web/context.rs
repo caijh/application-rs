@@ -9,12 +9,12 @@ use application_context::context::application_event::{
 };
 use application_core::env::environment::{ApplicationEnvironment, EnvironmentCapable};
 use application_core::env::property_resolver::PropertyResolver;
+use application_web::server::{AxumServer, WebServer};
 use async_std::task::block_on;
 use async_trait::async_trait;
 use std::any::{Any, TypeId};
 use std::sync::Arc;
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
-use web::server::{AxumServer, WebServer};
 
 #[async_trait]
 pub trait WebServerApplicationContext: ConfigurableApplicationContext {

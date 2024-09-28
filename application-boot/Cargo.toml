@@ -8,6 +8,7 @@ repository.workspace = true
 application-core = { path = "../application-core" }
 application-beans = { path = "../application-beans" }
 application-context = { path = "../application-context" }
+application-web = { path = "../application-web" }
 
 serde = { workspace = true }
 config = { workspace = true }
@@ -36,7 +37,6 @@ tower = { workspace = true }
 tower-http = { workspace = true }
 tower-service = { workspace = true }
 registration = { git = "https://caijh@bitbucket.org/bytebinary/registration-rs.git" }
-web = { git = "https://caijh@bitbucket.org/bytebinary/web-rs.git" }
 
 [dev-dependencies]
 
