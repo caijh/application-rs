@@ -1,12 +1,32 @@
 [workspace]
 resolver = "2"
-members = ["application-beans"]
+members = ["application-core", "application-boot", "application-beans", "application-context", "application-web", ]
+default-members = ["application-*"]
 
 [workspace.package]
-name = "application-rs"
 version = "0.1.0"
 edition = "2021"
 repository = "git@github.com:caijh/application-rs.git"
 
 [workspace.dependencies]
 state = "0.6.0"
+serde = { version = "1.0.210", features = ["derive"] }
+config = "0.14.0"
+lazy_static = "1.5.0"
+async-trait = "0.1.82"
+tokio = { version = "1.40.0", features = ["full"] }
+clap = { version = "4.5.18", features = ["derive", "cargo"] }
+consulrs = "0.1.0"
+tracing = "0.1.40"
+tracing-core = "0.1.32"
+tracing-log = "0.2.0"
+tracing-appender = "0.2.3"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+hostname = "0.4.0"
+dotenvy = "0.15.7"
+async-std = "1.13.0"
+tempfile = "3.12.0"
+axum = "0.7.6"
+tower = { version = "0.5.1", features = ["util"] }
+tower-http = { version = "0.6.0", features = ["timeout", "trace"] }
+tower-service = "0.3.3"
