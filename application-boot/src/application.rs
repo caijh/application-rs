@@ -436,7 +436,7 @@ impl Application for RustApplication {
 
         let duration = start_time.elapsed();
         info!(
-            "Started {} in {} seconds",
+            "Started {} in {} millis",
             self.crate_name,
             duration.as_millis()
         );
