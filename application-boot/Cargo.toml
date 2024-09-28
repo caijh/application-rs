@@ -1,0 +1,42 @@
+[package]
+name = "application-boot"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+application-core = { path = "../application-core" }
+application-beans = { path = "../application-beans" }
+application-context = { path = "../application-context" }
+
+serde = { workspace = true }
+config = { workspace = true }
+lazy_static = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+clap = { workspace = true }
+consulrs = { workspace = true }
+# log
+logger = { git = "https://caijh@bitbucket.org/bytebinary/logger-rs.git" }
+tracing = { workspace = true }
+tracing-core = { workspace = true }
+tracing-log = { workspace = true }
+tracing-appender = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+
+util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
+dotenvy = { workspace = true }
+hostname = { workspace = true }
+
+async-std = { workspace = true }
+tempfile = { workspace = true }
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+tower-service = { workspace = true }
+registration = { git = "https://caijh@bitbucket.org/bytebinary/registration-rs.git" }
+web = { git = "https://caijh@bitbucket.org/bytebinary/web-rs.git" }
+
+[dev-dependencies]
+

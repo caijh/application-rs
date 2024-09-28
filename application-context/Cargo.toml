@@ -1,0 +1,13 @@
+[package]
+name = "application-context"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+application-core = { path = "../application-core" }
+application-beans = { path = "../application-beans" }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+async-std = { workspace = true }
+

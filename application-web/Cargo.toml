@@ -1,0 +1,12 @@
+[package]
+name = "application-web"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+[dev-dependencies]
+application-core = { path = "../application-core" }
+application-beans = { path = "../application-beans" }
+application-context = { path = "../application-context" }
