@@ -70,13 +70,13 @@ impl RustApplication {
         RustApplication {
             crate_name: crate_name.to_string(),
             application_type,
-            bootstrap_registry_initializers: Arc::new(tokio::sync::RwLock::new(vec![Box::new(
+            bootstrap_registry_initializers: Arc::new(RwLock::new(vec![Box::new(
                 ConsulBootstrapRegistryInitializer {},
             )])),
-            initializers: Arc::new(tokio::sync::RwLock::new(vec![Box::new(
+            initializers: Arc::new(RwLock::new(vec![Box::new(
                 ContextIdApplicationContextInitializer {},
             )])),
-            listeners: Arc::new(tokio::sync::RwLock::new(vec![
+            listeners: Arc::new(RwLock::new(vec![
                 Box::new(LoggingApplicationListener {}),
                 Box::new(ApplicationStartingEventListener {}),
                 Box::new(BootstrapConfigFileApplicationListener {}),
@@ -84,7 +84,7 @@ impl RustApplication {
                 Box::new(DiscoveryDeRegistryApplicationListener {}),
                 Box::new(LoggingCleanApplicationListener {}),
             ])),
-            servlet_context_initializers: Arc::new(tokio::sync::RwLock::new(vec![])),
+            servlet_context_initializers: Arc::new(RwLock::new(vec![])),
         }
     }
 
@@ -108,7 +108,7 @@ impl RustApplication {
 
     fn get_application_run_listeners(&self) -> &ApplicationRunListeners {
         APPLICATION_RUN_LISTENERS.get_or_init(|| ApplicationRunListeners {
-            listeners: Arc::new(tokio::sync::RwLock::new(vec![Box::new(
+            listeners: Arc::new(RwLock::new(vec![Box::new(
                 EventPublishingRunListener {
                     initial_multicast: Arc::new(ApplicationEventMultiCaster {}),
                 },
