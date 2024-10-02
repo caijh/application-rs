@@ -9,8 +9,9 @@ members = [
     "application-boot",
     "application-web-actuator",
     "database-common",
+    "database-mysql-seaorm",
 ]
-default-members = ["application-*"]
+default-members = ["application-*", "database-*"]
 
 [workspace.package]
 version = "0.1.0"
