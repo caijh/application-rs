@@ -4,10 +4,19 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+/// 启动配置属性结构体
+///
+/// 该结构体包含了应用配置和日志配置两个重要的属性，
+/// 是应用启动时加载的配置信息的载体。
 pub struct BootstrapProperties {
+    /// 应用配置属性
+    /// 包含了应用运行所需的各种基础配置
     pub application: ApplicationProperties,
+    /// 日志配置属性
+    /// 包含了日志记录的相关配置，如日志级别、日志文件路径等
     pub logger: LoggerProperties,
 }
+
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct LoggerProperties {
@@ -78,8 +87,8 @@ impl Default for BootstrapProperties {
                     activate: ConfigActivateProperties {
                         profiles: vec!["default".to_string()],
                     },
-                    locations: None,
-                    file_names: None,
+                    locations: Some(vec![".".to_string()]),
+                    file_names: Some(vec!["config.toml".to_string()]),
                 },
                 cloud: None,
             },
