@@ -8,6 +8,7 @@ members = [
     "application-web-macros",
     "application-boot",
     "application-web-actuator",
+    "database-common",
 ]
 default-members = ["application-*"]
 
