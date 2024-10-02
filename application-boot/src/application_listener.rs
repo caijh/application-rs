@@ -68,7 +68,7 @@ impl ApplicationListener for BootstrapConfigFileApplicationListener {
         application: &RustApplication,
         _event: &dyn ApplicationEvent,
     ) -> Result<(), Box<dyn Error>> {
-        let application_context = application.get_application_context();
+        let application_context = application.get_application_context().await;
         let mut environment = application_context.get_environment_mut().await;
 
         let native_config = Configuration::read_native_config_from_environment(&environment)?;
@@ -101,7 +101,7 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
         application: &RustApplication,
         _event: &dyn ApplicationEvent,
     ) -> Result<(), Box<dyn Error>> {
-        let application_context = application.get_application_context();
+        let application_context = application.get_application_context().await;
         let bootstrap_context = application_context
             .get_bean_factory()
             .get::<DefaultBootstrapContext>();
@@ -150,7 +150,7 @@ impl ApplicationListener for DiscoveryDeRegistryApplicationListener {
         application: &RustApplication,
         _event: &dyn ApplicationEvent,
     ) -> Result<(), Box<dyn Error>> {
-        let application_context = application.get_application_context();
+        let application_context = application.get_application_context().await;
         let bootstrap_context = application_context
             .get_bean_factory()
             .get::<DefaultBootstrapContext>();

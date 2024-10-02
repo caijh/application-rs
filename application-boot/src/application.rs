@@ -160,10 +160,10 @@ impl RustApplication {
     ) -> Result<(), Box<dyn Error>> {
         debug!("prepare_environment");
         {
-            let application_context = self.get_application_context();
             let bootstrap_properties = bootstrap_context.get_bootstrap_properties();
             let mut environment = self.create_environment(bootstrap_properties)?;
             environment = self.configure_environment(environment, bootstrap_properties);
+            let application_context = self.get_application_context().await;
             application_context.set_environment(environment).await;
         }
         let listeners = self.get_application_run_listeners();
@@ -257,7 +257,7 @@ impl RustApplication {
     ) -> Result<(), Box<dyn Error>> {
         debug!("prepare_context");
         {
-            let application_context = self.get_application_context();
+            let application_context = self.get_application_context().await;
             application_context
                 .get_bean_factory()
                 .set(bootstrap_context);
@@ -278,7 +278,7 @@ impl RustApplication {
     async fn refresh_context(&self) -> Result<(), Box<dyn Error + Send + Sync>> {
         debug!("refresh_context");
 
-        let application_context = self.get_application_context();
+        let application_context = self.get_application_context().await;
 
         application_context.refresh().await;
 
@@ -286,11 +286,11 @@ impl RustApplication {
     }
 
     async fn after_refresh(&self) {
-        self.get_application_context().after_refresh().await;
+        let application_context = self.get_application_context().await;
+        application_context.after_refresh().await;
         match self.application_type {
             ApplicationType::App => self.started().await,
             ApplicationType::Web => {
-                let application_context = self.get_application_context();
                 let application_context = application_context
                     .as_any()
                     .downcast_ref::<ServletWebServerApplicationContext>()
@@ -410,11 +410,19 @@ pub trait Application {
         Ok(())
     }
 
-    fn get_application_context(
+    async fn get_application_context(
+        &self,
+    ) -> RwLockReadGuard<'_, Box<dyn ConfigurableApplicationContext>> {
+        APPLICATION_CONTEXT.read().await
+    }
+
+    async fn get_application_context_blocking(
         &self,
     ) -> RwLockReadGuard<'_, Box<dyn ConfigurableApplicationContext>> {
         block_on(APPLICATION_CONTEXT.read())
     }
+
+
 }
 
 #[async_trait]

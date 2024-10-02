@@ -79,7 +79,7 @@ impl ApplicationListener for LoggingCleanApplicationListener {
         application: &RustApplication,
         _event: &dyn ApplicationEvent,
     ) -> Result<(), Box<dyn Error>> {
-        let application_context = application.get_application_context();
+        let application_context = application.get_application_context().await;
         let bootstrap_context = application_context
             .get_bean_factory()
             .get::<DefaultBootstrapContext>();
