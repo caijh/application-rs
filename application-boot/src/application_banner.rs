@@ -19,6 +19,6 @@ pub trait Banner {
 
 impl Banner for ApplicationBootBannerPrinter {
     fn print(&self) {
-        info!(BANNER);
+        info!("{}", BANNER);
     }
 }
