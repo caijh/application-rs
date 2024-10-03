@@ -1,3 +1,4 @@
+use crate::application_banner::{ApplicationBootBannerPrinter, Banner};
 use crate::application_listener::{
     ApplicationListener, ApplicationStartingEventListener, BootstrapConfigFileApplicationListener,
     DiscoveryDeRegistryApplicationListener, DiscoveryRegistryApplicationListener,
@@ -437,6 +438,9 @@ impl Application for RustApplication {
         self.create_application_context();
 
         self.prepare_environment(&bootstrap_context).await?;
+
+        let banner = ApplicationBootBannerPrinter {};
+        banner.print();
 
         self.prepare_context(bootstrap_context).await?;
 
