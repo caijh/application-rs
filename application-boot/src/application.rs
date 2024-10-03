@@ -42,16 +42,16 @@ lazy_static::lazy_static! {
 }
 
 #[derive(Clone, Copy)]
-pub enum ApplicationType {
-    /// 表示为独立应用程序
-    App,
+pub enum WebApplicationType {
+    /// 表示为非Web应用程序
+    NONE,
     /// 表示为Web应用程序
-    Web,
+    WEB,
 }
 
 pub struct RustApplication {
     pub crate_name: String,
-    pub application_type: ApplicationType,
+    pub application_type: WebApplicationType,
     pub bootstrap_registry_initializers: Arc<RwLock<Vec<Box<dyn BootstrapRegistryInitializer>>>>,
     pub initializers: Arc<RwLock<Vec<Box<dyn ApplicationContextInitializer>>>>,
     pub listeners: Arc<RwLock<Vec<Box<dyn ApplicationListener>>>>,
@@ -62,12 +62,12 @@ static APPLICATION_RUN_LISTENERS: OnceLock<ApplicationRunListeners> = OnceLock::
 
 impl Default for RustApplication {
     fn default() -> Self {
-        RustApplication::new(crate_name!(), ApplicationType::Web)
+        RustApplication::new(crate_name!(), WebApplicationType::WEB)
     }
 }
 
 impl RustApplication {
-    pub fn new(crate_name: &str, application_type: ApplicationType) -> Self {
+    pub fn new(crate_name: &str, application_type: WebApplicationType) -> Self {
         RustApplication {
             crate_name: crate_name.to_string(),
             application_type,
@@ -244,8 +244,8 @@ impl RustApplication {
     pub fn create_application_context(&self) {
         debug!("create_application_context");
         let context: Box<dyn ConfigurableApplicationContext> = match self.application_type {
-            ApplicationType::App => Box::new(GenericApplicationContext::default()),
-            ApplicationType::Web => Box::new(ServletWebServerApplicationContext::default()),
+            WebApplicationType::NONE => Box::new(GenericApplicationContext::default()),
+            WebApplicationType::WEB => Box::new(ServletWebServerApplicationContext::default()),
         };
 
         let mut application_context_write = block_on(APPLICATION_CONTEXT.write());
@@ -290,8 +290,8 @@ impl RustApplication {
         let application_context = self.get_application_context().await;
         application_context.after_refresh().await;
         match self.application_type {
-            ApplicationType::App => self.started().await,
-            ApplicationType::Web => {
+            WebApplicationType::NONE => self.started().await,
+            WebApplicationType::WEB => {
                 let application_context = application_context
                     .as_any()
                     .downcast_ref::<ServletWebServerApplicationContext>()
