@@ -9,6 +9,7 @@ application-core = { path = "../application-core" }
 application-beans = { path = "../application-beans" }
 application-context = { path = "../application-context" }
 application-web-macros = { path = "../application-web-macros" }
+application-web-actuator = {path = "../application-web-actuator"}
 axum = { workspace = true }
 axum-server = { workspace = true }
 inventory = { workspace = true }

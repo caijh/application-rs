@@ -8,10 +8,7 @@ use crate::cloud::bootstrap::initializer::ConsulBootstrapRegistryInitializer;
 use crate::context::application_event_multi_caster::ApplicationEventMultiCaster;
 use crate::context::bootstrap_context::{BootstrapContext, DefaultBootstrapContext};
 use crate::env::properties::BootstrapProperties;
-use crate::initializer::{
-    ApplicationContextInitializer, BootstrapRegistryInitializer,
-    ContextIdApplicationContextInitializer, ServletContextInitializer,
-};
+use crate::initializer::{ActuatorRouterInitializer, ApplicationContextInitializer, BootstrapRegistryInitializer, ContextIdApplicationContextInitializer, ServletContextInitializer};
 use crate::logging::listener::{LoggingApplicationListener, LoggingCleanApplicationListener};
 use crate::web::context::{ServletWebServerApplicationContext, WebServerApplicationContext};
 use application_beans::factory::bean_factory::ConfigurableBeanFactory;
@@ -85,7 +82,7 @@ impl RustApplication {
                 Box::new(DiscoveryDeRegistryApplicationListener {}),
                 Box::new(LoggingCleanApplicationListener {}),
             ])),
-            servlet_context_initializers: Arc::new(RwLock::new(vec![])),
+            servlet_context_initializers: Arc::new(RwLock::new(vec![Box::new(ActuatorRouterInitializer)])),
         }
     }
 

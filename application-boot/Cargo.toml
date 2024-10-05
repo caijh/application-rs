@@ -9,6 +9,7 @@ application-core = { path = "../application-core" }
 application-beans = { path = "../application-beans" }
 application-context = { path = "../application-context" }
 application-web = { path = "../application-web" }
+application-web-actuator = {path = "../application-web-actuator"}
 
 serde = { workspace = true }
 config = { workspace = true }

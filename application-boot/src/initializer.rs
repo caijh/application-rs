@@ -4,7 +4,9 @@ use application_context::context::application_context::ConfigurableApplicationCo
 use application_core::env::property_resolver::PropertyResolver;
 use async_trait::async_trait;
 use axum::Router;
+use axum::routing::get;
 use tracing::info;
+use application_web_actuator::health::health_check;
 
 pub trait BootstrapRegistryInitializer: Send + Sync {
     fn initial(&self, context: &DefaultBootstrapContext);
@@ -17,6 +19,15 @@ pub trait ApplicationContextInitializer: Send + Sync {
 pub trait ServletContextInitializer: Send + Sync {
     fn initialize(&self, router: Router) -> Router;
 }
+
+pub struct ActuatorRouterInitializer;
+
+impl ServletContextInitializer for ActuatorRouterInitializer {
+    fn initialize(&self, router: Router) -> Router {
+        router.route("/actuator/health", get(health_check))
+    }
+}
+
 
 pub struct ContextIdApplicationContextInitializer {}
 
