@@ -22,7 +22,7 @@ impl<T> RespBody<T>
 where
     T: Serialize + DeserializeOwned + Clone,
 {
-    pub fn from_result(arg: &Result<T, Box<dyn Error>>) -> Self {
+    pub fn result(arg: &Result<T, Box<dyn Error>>) -> Self {
         match arg {
             Ok(r) => Self {
                 code: Some(CODE_SUCCESS),
@@ -37,15 +37,7 @@ where
         }
     }
 
-    pub fn from(arg: &T) -> Self {
-        Self {
-            code: Some(CODE_SUCCESS),
-            msg: None,
-            data: Some(arg.clone()),
-        }
-    }
-
-    pub fn from_error(arg: &dyn Error) -> Self {
+    pub fn error(arg: &dyn Error) -> Self {
         Self {
             code: Some(CODE_FAILURE),
             msg: Some(arg.to_string()),
@@ -53,20 +45,28 @@ where
         }
     }
 
-    pub fn from_error_info(info: &str) -> Self {
+    pub fn success(arg: &T) -> Self {
         Self {
-            code: Some(CODE_FAILURE),
-            msg: Some(info.to_string()),
-            data: None,
+            code: Some(CODE_SUCCESS),
+            msg: None,
+            data: Some(arg.clone()),
         }
     }
 
-    pub fn from_error_code_info(code: i8, info: &str) -> Self {
+    pub fn code_info(code: i8, info: &str) -> Self {
         Self {
             code: Some(code),
             msg: Some(info.to_string()),
             data: None,
         }
+    }
+
+    pub fn fail_info(info: &str) -> Self {
+        Self::code_info(CODE_FAILURE, info)
+    }
+
+    pub fn success_info(info: &str) -> Self {
+        Self::code_info(CODE_SUCCESS, info)
     }
 
     pub fn response(&self) -> Response {
