@@ -1,0 +1,17 @@
+[package]
+name = "application-schedule"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+application-core = {path = "../application-core"}
+tokio = {workspace = true}
+bimap = "0.6.3"
+tokio-cron-scheduler = {version = "0.13.0", features = ["signal"]}
+uuid = { version = "1.10.0", features = ["std", "v4"] }
+tracing = {workspace = true}
+
+[features]
+default = ["signal"]
+signal = ["tokio-cron-scheduler/signal"]
