@@ -91,3 +91,9 @@ impl ApplicationContext for GenericApplicationContext {
 }
 
 impl ConfigurableApplicationContext for GenericApplicationContext {}
+
+lazy_static::lazy_static! {
+    pub static ref APPLICATION_CONTEXT: Arc<RwLock<Box<dyn ConfigurableApplicationContext>>> = {
+        Arc::new(RwLock::new(Box::new(GenericApplicationContext::default())))
+    };
+}

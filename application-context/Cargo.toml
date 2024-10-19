@@ -10,4 +10,5 @@ application-beans = { path = "../application-beans" }
 async-trait = { workspace = true }
 tokio = { workspace = true }
 async-std = { workspace = true }
+lazy_static = { workspace = true }
 
