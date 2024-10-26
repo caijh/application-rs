@@ -114,13 +114,19 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
                     address: Some(service_check_properties.address.clone()),
                     interval: Some(service_check_properties.interval.clone()),
                 };
+
+                let service_id = &properties.application.name;
                 let local_ip = LocalIp::get_local_addr_ip().unwrap();
-                let host = match hostname::get() {
+                let mut host = match hostname::get() {
                     Ok(hostname) => hostname.to_string_lossy().to_string(),
                     Err(_) => local_ip.to_string(),
                 };
-                let service_id = &properties.application.name;
-                let port = properties.application.port.unwrap();
+                let mut port = properties.application.port.unwrap();
+                if let Some(prefer_ip_address) = &discovery.prefer_ip_address {
+                    host = prefer_ip_address.ip_address.to_string();
+                    port = prefer_ip_address.port;
+                }
+
                 let registration = ServiceRegistration::new(
                     service_id.as_str(),
                     host.as_str(),

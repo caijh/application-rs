@@ -17,7 +17,6 @@ pub struct BootstrapProperties {
     pub logger: LoggerProperties,
 }
 
-
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct LoggerProperties {
     pub enabled: bool,
@@ -48,7 +47,14 @@ pub struct CloudProperties {
 pub struct DiscoveryProperties {
     pub address: String,
     pub token: Option<String>,
+    pub prefer_ip_address: Option<PreferIpAddress>,
     pub service: Option<ServiceProperties>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PreferIpAddress {
+    pub ip_address: String,
+    pub port: u16,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
