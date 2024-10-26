@@ -109,12 +109,6 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
         if let Some(cloud) = &properties.application.cloud {
             if let Some(discovery) = &cloud.discovery {
                 let consul_client = bootstrap_context.get::<ConsulClient>();
-                let service_check_properties = &discovery.service.clone().unwrap().check;
-                let service_check = ServiceCheck {
-                    address: Some(service_check_properties.address.clone()),
-                    interval: Some(service_check_properties.interval.clone()),
-                };
-
                 let service_id = &properties.application.name;
                 let local_ip = LocalIp::get_local_addr_ip().unwrap();
                 let mut host = match hostname::get() {
@@ -126,7 +120,17 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
                     host = host_properties.ip.clone();
                     port = host_properties.port;
                 }
-
+                let mut health_check_url = format!("http://{}:{}/actuator/health", host, port);
+                let mut interval = "30s".to_string();
+                if let Some(health) = &discovery.health {
+                    let check = &health.check;
+                    health_check_url = format!("http://{}:{}/{}", host, port, check.path);
+                    interval = check.interval.clone();
+                }
+                let service_check = ServiceCheck {
+                    address: Some(health_check_url),
+                    interval: Some(interval),
+                };
                 let registration = ServiceRegistration::new(
                     service_id.as_str(),
                     host.as_str(),

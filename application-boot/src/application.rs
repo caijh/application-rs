@@ -201,17 +201,17 @@ impl RustApplication {
                         discovery.server.token.clone(),
                     )
                     .unwrap();
-                if let Some(service) = &discovery.service {
+                if let Some(health) = &discovery.health {
                     builder = builder
                         .set_default(
-                            "application.cloud.discovery.service.check.address",
-                            service.check.address.clone(),
+                            "application.cloud.discovery.health.check.path",
+                            health.check.path.clone(),
                         )
                         .unwrap();
                     builder = builder
                         .set_default(
-                            "application.cloud.discovery.service.check.interval",
-                            service.check.interval.clone(),
+                            "application.cloud.discovery.health.check.interval",
+                            health.check.interval.clone(),
                         )
                         .unwrap();
                 }

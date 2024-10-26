@@ -59,17 +59,17 @@ pub struct HostProperties {
 pub struct DiscoveryProperties {
     pub server: ServerProperties,
     pub host: Option<HostProperties>,
-    pub service: Option<ServiceProperties>,
+    pub health: Option<HealthProperties>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct ServiceProperties {
-    pub check: ServiceCheckProperties,
+pub struct HealthProperties {
+    pub check: HealthCheckProperties,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct ServiceCheckProperties {
-    pub address: String,
+pub struct HealthCheckProperties {
+    pub path: String,
     pub interval: String,
 }
 
