@@ -122,9 +122,11 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
                     Err(_) => local_ip.to_string(),
                 };
                 let mut port = properties.application.port.unwrap();
-                if let Some(prefer_ip_address) = &discovery.prefer_ip_address {
-                    host = prefer_ip_address.ip_address.to_string();
-                    port = prefer_ip_address.port;
+                if let Some(prefer_ip) = &discovery.ip {
+                    host = prefer_ip.to_string();
+                }
+                if let Some(prefer_port) = &discovery.port {
+                    port = *prefer_port;
                 }
 
                 let registration = ServiceRegistration::new(

@@ -44,10 +44,16 @@ pub struct CloudProperties {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct DiscoveryProperties {
+pub struct ServerProperties {
     pub address: String,
     pub token: Option<String>,
-    pub prefer_ip_address: Option<PreferIpAddress>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct DiscoveryProperties {
+    pub server: ServerProperties,
+    pub ip: Option<String>,
+    pub port: Option<u16>,
     pub service: Option<ServiceProperties>,
 }
 

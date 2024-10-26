@@ -18,8 +18,9 @@ impl BootstrapRegistryInitializer for ConsulBootstrapRegistryInitializer {
         let bootstrap_properties = context.get_bootstrap_properties();
         if let Some(cloud) = &bootstrap_properties.application.cloud {
             if let Some(discovery) = &cloud.discovery {
-                let token = discovery.token.clone();
-                let address = &discovery.address;
+                let server_properties = &discovery.server;
+                let token = server_properties.token.clone();
+                let address = &discovery.server.address;
                 let client = ConsulClient::new(
                     ConsulClientSettingsBuilder::default()
                         .address(address)

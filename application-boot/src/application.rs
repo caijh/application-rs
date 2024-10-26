@@ -191,12 +191,15 @@ impl RustApplication {
             if let Some(discovery) = &cloud.discovery {
                 builder = builder
                     .set_default(
-                        "application.cloud.discovery.address",
-                        discovery.address.clone(),
+                        "application.cloud.discovery.server.address",
+                        discovery.server.address.clone(),
                     )
                     .unwrap();
                 builder = builder
-                    .set_default("application.cloud.discovery.token", discovery.token.clone())
+                    .set_default(
+                        "application.cloud.discovery.server.token",
+                        discovery.server.token.clone(),
+                    )
                     .unwrap();
                 if let Some(service) = &discovery.service {
                     builder = builder
