@@ -50,17 +50,16 @@ pub struct ServerProperties {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct DiscoveryProperties {
-    pub server: ServerProperties,
-    pub ip: Option<String>,
-    pub port: Option<u16>,
-    pub service: Option<ServiceProperties>,
+pub struct HostProperties {
+    pub ip: String,
+    pub port: u16,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct PreferIpAddress {
-    pub ip_address: String,
-    pub port: u16,
+pub struct DiscoveryProperties {
+    pub server: ServerProperties,
+    pub host: Option<HostProperties>,
+    pub service: Option<ServiceProperties>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
