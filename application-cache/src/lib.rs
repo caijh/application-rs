@@ -23,7 +23,7 @@ impl CacheManager {
 
     pub async fn get(key: &str) -> Option<String> {
         let cache_manager = Self::get_or_init(DEFAULT_MAX_CAPACITY, Duration::from_secs(3600));
-        cache_manager.cache.get(&key).await
+        cache_manager.cache.get(key).await
     }
 
     pub async fn set(key: &str, value: &str) {
