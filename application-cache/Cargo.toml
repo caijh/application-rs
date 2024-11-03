@@ -1,0 +1,8 @@
+[package]
+name = "application-cache"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+moka2 = "0.12.9"

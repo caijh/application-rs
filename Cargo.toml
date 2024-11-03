@@ -9,6 +9,7 @@ members = [
     "application-boot",
     "application-web-actuator",
     "application-schedule",
+    "application-cache",
     "database-common",
     "database-mysql-seaorm",
 ]
