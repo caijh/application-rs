@@ -2,6 +2,7 @@ use config::Config;
 use serde::Deserialize;
 use std::collections::LinkedList;
 
+/// PropertySource representing a source of name/value property pairs.
 #[derive(Default, Clone)]
 pub struct PropertySource {
     /// The name of the property source
