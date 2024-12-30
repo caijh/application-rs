@@ -11,7 +11,7 @@ application-beans = { path = "../application-beans" }
 tokio = {workspace = true}
 bimap = "0.6.3"
 tokio-cron-scheduler = {version = "0.13.0", features = ["signal"]}
-uuid = { version = "1.10.0", features = ["std", "v4"] }
+uuid = { version = "1.11.0", features = ["std", "v4"] }
 tracing = {workspace = true}
 chrono-tz = { workspace = true }
 

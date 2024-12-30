@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 database-common = { path = "../database-common"}
-sea-orm = { version = "1.0.0", features = ["sqlx-mysql", "runtime-tokio-rustls", "macros", "with-bigdecimal", "with-chrono", "with-json", "with-time", "with-uuid"] }
+sea-orm = { version = "1.1.3", features = ["sqlx-mysql", "runtime-tokio-rustls", "macros", "with-bigdecimal", "with-chrono", "with-json", "with-time", "with-uuid"] }
 tracing = {workspace = true}
