@@ -1,12 +1,11 @@
-use std::error::Error;
-use std::fmt::Display;
-
 use askama::Template;
 use axum::body::Body;
 use axum::http::{StatusCode, Uri};
 use axum::response::{Html, IntoResponse, Response};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
+use std::fmt::Display;
 
 pub const CODE_SUCCESS: i8 = 0;
 pub const CODE_FAILURE: i8 = -1;
@@ -70,14 +69,18 @@ where
     }
 
     pub fn response(&self) -> Response {
-        Response::builder()
-            .extension(|| {})
-            .header("Access-Control-Allow-Origin", "*")
-            .header("Cache-Control", "no-cache")
-            .header("Content-Type", "application/json;charset=UTF-8")
-            .body(Body::from(self.to_string()))
-            .unwrap()
+        build_json_response(self.to_string())
     }
+}
+
+fn build_json_response(json: String) -> Response {
+    Response::builder()
+        .extension(|| {})
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Cache-Control", "no-cache")
+        .header("Content-Type", "application/json;charset=UTF-8")
+        .body(Body::from(json))
+        .unwrap()
 }
 
 impl<T> IntoResponse for RespBody<T>
@@ -85,7 +88,7 @@ where
     T: Serialize + DeserializeOwned,
 {
     fn into_response(self) -> Response {
-        self.response()
+        build_json_response(self.to_string())
     }
 }
 
