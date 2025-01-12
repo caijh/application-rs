@@ -74,7 +74,7 @@ where
             .extension(|| {})
             .header("Access-Control-Allow-Origin", "*")
             .header("Cache-Control", "no-cache")
-            .header("Content-Type", "text/json;charset=UTF-8")
+            .header("Content-Type", "application/json;charset=UTF-8")
             .body(Body::from(self.to_string()))
             .unwrap()
     }
@@ -85,7 +85,7 @@ where
     T: Serialize + DeserializeOwned,
 {
     fn into_response(self) -> Response {
-        self.to_string().into_response()
+        self.response()
     }
 }
 
