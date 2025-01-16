@@ -120,11 +120,22 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
                     host = host_properties.ip.clone();
                     port = host_properties.port;
                 }
-                let mut health_check_url = format!("http://{}:{}/actuator/health", host, port);
+                let mut health_check_url = format!(
+                    "{}//{}:{}/actuator/health",
+                    if port == 443 { "https" } else { "http" },
+                    host,
+                    port
+                );
                 let mut interval = "30s".to_string();
                 if let Some(health) = &discovery.health {
                     let check = &health.check;
-                    health_check_url = format!("http://{}:{}/{}", host, port, check.path);
+                    health_check_url = format!(
+                        "{}://{}:{}/{}",
+                        if port == 443 { "https" } else { "http" },
+                        host,
+                        port,
+                        check.path
+                    );
                     interval = check.interval.clone();
                 }
                 let service_check = ServiceCheck {
