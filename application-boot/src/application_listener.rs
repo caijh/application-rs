@@ -121,7 +121,7 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
                     port = host_properties.port;
                 }
                 let mut health_check_url = format!(
-                    "{}//{}:{}/actuator/health",
+                    "{}://{}:{}/actuator/health",
                     if port == 443 { "https" } else { "http" },
                     host,
                     port
