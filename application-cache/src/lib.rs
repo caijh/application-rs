@@ -5,13 +5,8 @@ use std::time::Duration;
 
 static CACHE: OnceLock<CacheManager> = OnceLock::new();
 
-pub struct NamedCache {
-    pub name: String,
-    cache: Cache<String, String>,
-}
-
 pub struct CacheManager {
-    caches: Arc<RwLock<HashMap<String, NamedCache>>>,
+    caches: Arc<RwLock<HashMap<String, Cache<String, String>>>>,
 }
 
 const DEFAULT_MAX_CAPACITY: u64 = 10000;
@@ -23,12 +18,8 @@ impl CacheManager {
                 .max_capacity(DEFAULT_MAX_CAPACITY)
                 .time_to_idle(Duration::from_secs(1800))
                 .build();
-            let default_cache = NamedCache {
-                name: "".to_string(),
-                cache,
-            };
             let mut map = HashMap::new();
-            map.insert(String::from(""), default_cache);
+            map.insert(String::from(""), cache);
             CacheManager {
                 caches: Arc::new(RwLock::new(map)),
             }
@@ -47,7 +38,7 @@ impl CacheManager {
             return None;
         }
         let name_cache = name_cache.unwrap();
-        name_cache.cache.get(key).await
+        name_cache.get(key).await
     }
 
     pub async fn set(key: &str, value: &str) {
@@ -64,17 +55,10 @@ impl CacheManager {
                 .time_to_idle(duration)
                 .build();
             cache.insert(key.to_string(), value.to_string()).await;
-            let name_cache = NamedCache {
-                name: name.to_string(),
-                cache,
-            };
-            caches.insert(name.to_string(), name_cache);
+            caches.insert(name.to_string(), cache);
         } else {
             let name_cache = name_cache.unwrap();
-            name_cache
-                .cache
-                .insert(key.to_string(), value.to_string())
-                .await;
+            name_cache.insert(key.to_string(), value.to_string()).await;
         }
     }
 }
