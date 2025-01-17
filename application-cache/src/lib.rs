@@ -1,7 +1,8 @@
 use moka2::future::Cache;
 use std::collections::HashMap;
-use std::sync::{Arc, OnceLock, RwLock};
+use std::sync::{Arc, OnceLock};
 use std::time::Duration;
+use tokio::sync::RwLock;
 
 static CACHE: OnceLock<CacheManager> = OnceLock::new();
 
@@ -32,12 +33,9 @@ impl CacheManager {
 
     pub async fn get_from(name: &str, key: &str) -> Option<String> {
         let cache_manager = Self::get_or_init();
-        let caches = cache_manager.caches.read().unwrap();
+        let caches = cache_manager.caches.read().await;
         let name_cache = caches.get(name);
-        if name_cache.is_none() {
-            return None;
-        }
-        let name_cache = name_cache.unwrap();
+        let name_cache = name_cache?;
         name_cache.get(key).await
     }
 
@@ -47,7 +45,7 @@ impl CacheManager {
 
     pub async fn set_to(name: &str, key: &str, value: &str, duration: Duration) {
         let cache_manager = Self::get_or_init();
-        let mut caches = cache_manager.caches.write().unwrap();
+        let mut caches = cache_manager.caches.write().await;
         let name_cache = caches.get_mut(name);
         if name_cache.is_none() {
             let cache: Cache<String, String> = Cache::builder()
