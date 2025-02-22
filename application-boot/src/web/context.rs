@@ -12,7 +12,9 @@ use application_core::env::property_resolver::PropertyResolver;
 use application_web::server::{AxumServer, WebServer};
 use async_std::task::block_on;
 use async_trait::async_trait;
-use std::any::{Any, TypeId};
+use std::any::Any;
+use std::hash::{DefaultHasher, Hash, Hasher};
+use std::ptr::addr_of;
 use std::sync::Arc;
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
@@ -78,8 +80,11 @@ impl ApplicationContext for ServletWebServerApplicationContext {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn get_id(&self) -> TypeId {
-        self.type_id()
+    fn get_id(&self) -> String {
+        let mut hasher = DefaultHasher::new();
+        let result: *const &ServletWebServerApplicationContext = addr_of!(self);
+        result.hash(&mut hasher);
+        format!("{:?}@{}", self.type_id(), hasher.finish())
     }
     fn get_bean_factory(&self) -> &DefaultListableBeanFactory {
         &self.bean_factory

@@ -6,14 +6,16 @@ use application_core::env::environment::{ApplicationEnvironment, EnvironmentCapa
 use application_core::env::property_resolver::PropertyResolver;
 use async_std::task::block_on;
 use async_trait::async_trait;
-use std::any::{Any, TypeId};
+use std::any::Any;
+use std::hash::{DefaultHasher, Hash, Hasher};
+use std::ptr::addr_of;
 use std::sync::Arc;
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[async_trait]
 pub trait ApplicationContext: EnvironmentCapable + ApplicationEventPublisher + Send + Sync {
     fn as_any(&self) -> &dyn Any;
-    fn get_id(&self) -> TypeId;
+    fn get_id(&self) -> String;
     fn get_application_name(&self) -> String {
         self.get_environment_blocking()
             .get_property::<String>("application.name")
@@ -76,8 +78,11 @@ impl ApplicationContext for GenericApplicationContext {
         self
     }
 
-    fn get_id(&self) -> TypeId {
-        self.type_id()
+    fn get_id(&self) -> String {
+        let mut hasher = DefaultHasher::new();
+        let result: *const &GenericApplicationContext = addr_of!(self);
+        result.hash(&mut hasher);
+        format!("{:?}@{}", self.type_id(), hasher.finish())
     }
 
     fn get_bean_factory(&self) -> &DefaultListableBeanFactory {
