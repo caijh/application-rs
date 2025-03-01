@@ -1,7 +1,6 @@
 use crate::context::bootstrap_context::{BootstrapContext, DefaultBootstrapContext};
 use crate::initializer::BootstrapRegistryInitializer;
 use consulrs::client::{ConsulClient, ConsulClientSettingsBuilder};
-use tracing::info;
 
 pub struct RefreshBootstrapRegistryInitializer {}
 
@@ -20,7 +19,6 @@ impl BootstrapRegistryInitializer for ConsulBootstrapRegistryInitializer {
         if let Some(cloud) = &bootstrap_properties.application.cloud {
             if let Some(discovery) = &cloud.discovery {
                 let server_properties = &discovery.server;
-                info!("server_properties {:?}", server_properties);
                 let token = server_properties.token.clone();
                 let address = &discovery.server.address;
                 let client = ConsulClient::new(
