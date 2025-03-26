@@ -1,6 +1,10 @@
+use std::collections::HashMap;
 use std::error::Error;
 
 use crate::application::{Application, RustApplication};
+use crate::cloud::client::registry::{
+    ConsulServiceRegistry, Registration, ServiceCheck, ServiceInstance, ServiceRegistry,
+};
 use crate::context::bootstrap_context::{BootstrapContext, DefaultBootstrapContext};
 use crate::env::configuration::{Configuration, ConfigurationResolver};
 use crate::logging::listener::ApplicationStartingEvent;
@@ -9,8 +13,6 @@ use application_context::context::application_event::{ApplicationEvenType, Appli
 use application_core::env::environment::ConfigurableEnvironment;
 use application_core::env::property::PropertySource;
 use async_trait::async_trait;
-use consulrs::client::ConsulClient;
-use registration::{deregister, register, ServiceCheck, ServiceInstance, ServiceRegistration};
 use tracing::info;
 use util::ip::LocalIp;
 
@@ -108,7 +110,7 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
         let properties = &bootstrap_context.get_bootstrap_properties();
         if let Some(cloud) = &properties.application.cloud {
             if let Some(discovery) = &cloud.discovery {
-                let consul_client = bootstrap_context.get::<ConsulClient>();
+                let registry = bootstrap_context.get::<ConsulServiceRegistry>();
                 let service_id = &properties.application.name;
                 let local_ip = LocalIp::get_local_addr_ip().unwrap();
                 let mut host = match hostname::get() {
@@ -120,37 +122,35 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
                     host = host_properties.ip.clone();
                     port = host_properties.port;
                 }
-                let mut health_check_url = format!(
-                    "{}://{}:{}/actuator/health",
-                    if port == 443 { "https" } else { "http" },
-                    host,
-                    port
-                );
+                let schema = if port == 443 { "https" } else { "http" };
+                let mut health_check_url =
+                    format!("{}://{}:{}/actuator/health", schema, host, port);
                 let mut interval = "30s".to_string();
                 if let Some(health) = &discovery.health {
                     let check = &health.check;
-                    health_check_url = format!(
-                        "{}://{}:{}/{}",
-                        if port == 443 { "https" } else { "http" },
-                        host,
-                        port,
-                        check.path
-                    );
+                    health_check_url = format!("{}://{}:{}/{}", schema, host, port, check.path);
                     interval = check.interval.clone();
                 }
                 let service_check = ServiceCheck {
                     address: Some(health_check_url),
                     interval: Some(interval),
                 };
-                let registration = ServiceRegistration::new(
-                    service_id.as_str(),
-                    host.as_str(),
-                    port,
-                    &service_check,
-                );
-                let service_instance = register(consul_client, &registration).await?;
-                info!("Register {:?}", service_instance);
-                bootstrap_context.set(service_instance);
+                let service_instance = ServiceInstance {
+                    instance_id: service_id.clone(),
+                    service_id: service_id.clone(),
+                    host,
+                    port: port as u32,
+                    is_secure: schema == "https",
+                    metadata: HashMap::new(),
+                    schema: schema.to_string(),
+                };
+                let registration = Registration {
+                    service_instance,
+                    service_check,
+                };
+                registry.register(&registration).await?;
+                info!("Register {:?}", registration);
+                bootstrap_context.set(registration);
             }
         }
         Ok(())
@@ -175,10 +175,10 @@ impl ApplicationListener for DiscoveryDeRegistryApplicationListener {
         let bootstrap_context = application_context
             .get_bean_factory()
             .get::<DefaultBootstrapContext>();
-        let service_instance = bootstrap_context.try_get::<ServiceInstance>();
-        if let Some(service_instance) = service_instance {
-            let consul_client = bootstrap_context.get::<ConsulClient>();
-            let _ = deregister(consul_client, service_instance).await?;
+        let registration = bootstrap_context.try_get::<Registration>();
+        if let Some(service_instance) = registration {
+            let registry = bootstrap_context.get::<ConsulServiceRegistry>();
+            let _ = registry.deregister(service_instance).await?;
             info!("DeRegister {:?}", service_instance);
         }
         Ok(())

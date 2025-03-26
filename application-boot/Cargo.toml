@@ -37,7 +37,6 @@ axum = { workspace = true }
 tower = { workspace = true }
 tower-http = { workspace = true }
 tower-service = { workspace = true }
-registration = { git = "https://caijh@bitbucket.org/bytebinary/registration-rs.git" }
 
 [dev-dependencies]
 

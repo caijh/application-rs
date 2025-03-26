@@ -1,3 +1,4 @@
+use crate::cloud::client::registry::ConsulServiceRegistry;
 use crate::context::bootstrap_context::{BootstrapContext, DefaultBootstrapContext};
 use crate::initializer::BootstrapRegistryInitializer;
 use consulrs::client::{ConsulClient, ConsulClientSettingsBuilder};
@@ -29,7 +30,8 @@ impl BootstrapRegistryInitializer for ConsulBootstrapRegistryInitializer {
                         .unwrap(),
                 )
                 .unwrap();
-                context.set(client);
+                let registry = ConsulServiceRegistry { client };
+                context.set(registry);
             }
         }
     }
