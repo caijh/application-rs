@@ -60,10 +60,7 @@ impl ServiceRegistry for ConsulServiceRegistry {
             &service_instance.service_id,
             Some(
                 RegisterServiceRequest::builder()
-                    .id(format!(
-                        "{}@{}:{}",
-                        service_instance.service_id, service_instance.host, service_instance.port
-                    ))
+                    .id(&service_instance.instance_id)
                     .address(&host)
                     .port(service_instance.port as u64)
                     .check(

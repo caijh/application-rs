@@ -135,8 +135,9 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
                     address: Some(health_check_url),
                     interval: Some(interval),
                 };
+                let instance_id = format!("{}@{}:{}", service_id, host, port);
                 let service_instance = ServiceInstance {
-                    instance_id: service_id.clone(),
+                    instance_id,
                     service_id: service_id.clone(),
                     host,
                     port: port as u32,
