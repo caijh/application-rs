@@ -10,6 +10,7 @@ application-beans = { path = "../application-beans" }
 application-context = { path = "../application-context" }
 application-web = { path = "../application-web" }
 application-web-actuator = {path = "../application-web-actuator"}
+application-logger = { path = "../application-logger" }
 
 serde = { workspace = true }
 config = { workspace = true }
@@ -19,12 +20,7 @@ tokio = { workspace = true }
 clap = { workspace = true }
 consulrs = { workspace = true }
 # log
-logger = { git = "https://caijh@bitbucket.org/bytebinary/logger-rs.git" }
 tracing = { workspace = true }
-tracing-core = { workspace = true }
-tracing-log = { workspace = true }
-tracing-appender = { workspace = true }
-tracing-subscriber = { workspace = true }
 
 
 util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
@@ -36,7 +32,6 @@ tempfile = { workspace = true }
 axum = { workspace = true }
 tower = { workspace = true }
 tower-http = { workspace = true }
-tower-service = { workspace = true }
 
 [dev-dependencies]
 

@@ -1,0 +1,12 @@
+[package]
+name = "application-logger"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+config = { workspace = true }
+tracing = { workspace = true }
+tracing-appender = { workspace = true }
+tracing-subscriber = { workspace = true }
+serde = { workspace = true }

@@ -1,4 +1,4 @@
-use logger::Logger;
+use application_logger::Logger;
 use std::collections::HashMap;
 use std::sync::Arc;
 
