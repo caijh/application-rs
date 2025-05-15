@@ -29,7 +29,7 @@ use std::env::consts::OS;
 use std::error::Error;
 use std::process::Command;
 use std::sync::{Arc, OnceLock};
-use std::time::{Duration, Instant};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::{RwLock, RwLockReadGuard};
 use tower_http::timeout::TimeoutLayer;
 use tower_http::trace::TraceLayer;
@@ -43,6 +43,46 @@ pub enum WebApplicationType {
     WEB,
 }
 
+#[async_trait]
+trait Startup: Send + Sync {
+    async fn get_start_time(&self) -> u128;
+    async fn get_process_up_time(&self) -> u128;
+    async fn get_action(&self) -> String;
+
+    async fn started(&self);
+}
+
+struct StandardStartup {
+    start_time: u128,
+    time_taken_to_started: RwLock<u128>,
+}
+
+#[async_trait]
+impl Startup for StandardStartup {
+    async fn get_start_time(&self) -> u128 {
+        self.start_time
+    }
+
+    async fn get_process_up_time(&self) -> u128 {
+        let guard = self.time_taken_to_started.read().await;
+        *guard
+    }
+
+    async fn get_action(&self) -> String {
+        "Started".to_string()
+    }
+
+    async fn started(&self) {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
+        let time_taken_to_started = now - self.get_start_time().await;
+        let mut guard = self.time_taken_to_started.write().await;
+        *guard = time_taken_to_started;
+    }
+}
+
 pub struct RustApplication {
     pub crate_name: String,
     pub application_type: WebApplicationType,
@@ -50,6 +90,7 @@ pub struct RustApplication {
     pub initializers: Arc<RwLock<Vec<Box<dyn ApplicationContextInitializer>>>>,
     pub listeners: Arc<RwLock<Vec<Box<dyn ApplicationListener>>>>,
     pub servlet_context_initializers: Arc<RwLock<Vec<Box<dyn ServletContextInitializer>>>>,
+    start_up: Arc<RwLock<Box<dyn Startup>>>,
 }
 
 static APPLICATION_RUN_LISTENERS: OnceLock<ApplicationRunListeners> = OnceLock::new();
@@ -82,6 +123,10 @@ impl RustApplication {
             servlet_context_initializers: Arc::new(RwLock::new(vec![Box::new(
                 ActuatorRouterInitializer,
             )])),
+            start_up: Arc::new(RwLock::new(Box::new(StandardStartup {
+                start_time: 0,
+                time_taken_to_started: Default::default(),
+            }))),
         }
     }
 
@@ -287,7 +332,17 @@ impl RustApplication {
         let application_context = self.get_application_context().await;
         application_context.after_refresh().await;
         match self.application_type {
-            WebApplicationType::NONE => self.started().await,
+            WebApplicationType::NONE => {
+                let start_up = self.start_up.read().await;
+                start_up.started().await;
+                info!(
+                    "{} {} in {} Mills",
+                    start_up.get_action().await,
+                    self.crate_name,
+                    start_up.get_process_up_time().await
+                );
+                self.started().await
+            }
             WebApplicationType::WEB => {
                 let application_context = application_context
                     .as_any()
@@ -308,6 +363,13 @@ impl RustApplication {
                     router = initializer.initialize(router);
                 }
                 let condvar_pair = web_server.start(router).unwrap();
+                let start_up = self.start_up.read().await;
+                start_up.started().await;
+                info!(
+                    "Started {} in {} Mills",
+                    self.crate_name,
+                    start_up.get_process_up_time().await
+                );
                 self.started().await;
                 // 等待线程启动。
                 let (lock, cvar) = &*condvar_pair;
@@ -351,6 +413,11 @@ impl RustApplication {
     async fn failed(&self) {
         let listeners = self.get_application_run_listeners();
         listeners.failed(self).await;
+    }
+
+    async fn set_start_up(&self, start_up: StandardStartup) {
+        let mut guard = self.start_up.write().await;
+        *guard = Box::new(start_up);
     }
 }
 
@@ -424,7 +491,12 @@ pub trait Application {
 #[async_trait]
 impl Application for RustApplication {
     async fn run(&self) -> Result<(), Box<dyn Error>> {
-        let start_time = Instant::now();
+        let now = SystemTime::now().duration_since(UNIX_EPOCH)?;
+        let start_up = StandardStartup {
+            start_time: now.as_millis(),
+            time_taken_to_started: Default::default(),
+        };
+        self.set_start_up(start_up).await;
 
         let bootstrap_context = self.create_bootstrap_context().await;
 
@@ -440,13 +512,6 @@ impl Application for RustApplication {
         self.prepare_context(bootstrap_context).await?;
 
         let result = self.refresh_context().await;
-
-        let duration = start_time.elapsed();
-        info!(
-            "Started {} in {} millis",
-            self.crate_name,
-            duration.as_millis()
-        );
 
         match result {
             Ok(_) => {
