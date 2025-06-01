@@ -34,14 +34,7 @@ use tokio::sync::{RwLock, RwLockReadGuard};
 use tower_http::timeout::TimeoutLayer;
 use tower_http::trace::TraceLayer;
 use tracing::{debug, info};
-
-#[derive(Clone, Copy)]
-pub enum WebApplicationType {
-    /// 表示为非Web应用程序
-    NONE,
-    /// 表示为Web应用程序
-    WEB,
-}
+use crate::application_type::WebApplicationType;
 
 #[async_trait]
 trait Startup: Send + Sync {
