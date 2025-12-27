@@ -79,7 +79,7 @@ impl Startup for StandardStartup {
 
 pub struct RustApplication {
     pub crate_name: String,
-    pub application_properties: ApplicationProperties,
+    pub properties: ApplicationProperties,
     pub bootstrap_registry_initializers: Arc<RwLock<Vec<Box<dyn BootstrapRegistryInitializer>>>>,
     pub initializers: Arc<RwLock<Vec<Box<dyn ApplicationContextInitializer>>>>,
     pub listeners: Arc<RwLock<Vec<Box<dyn ApplicationListener>>>>,
@@ -99,7 +99,7 @@ impl RustApplication {
     pub fn new(crate_name: &str, application_type: WebApplicationType) -> Self {
         RustApplication {
             crate_name: crate_name.to_string(),
-            application_properties: ApplicationProperties {
+            properties: ApplicationProperties {
                 web_application_type: application_type,
             },
             bootstrap_registry_initializers: Arc::new(RwLock::new(vec![Box::new(
@@ -281,7 +281,7 @@ impl RustApplication {
 
     pub fn create_application_context(&self) {
         debug!("create_application_context");
-        let application_type = self.application_properties.web_application_type;
+        let application_type = self.properties.web_application_type;
         let context: Box<dyn ConfigurableApplicationContext> = match application_type {
             WebApplicationType::NONE => Box::new(GenericApplicationContext::default()),
             WebApplicationType::WEB => Box::new(ServletWebServerApplicationContext::default()),
@@ -328,7 +328,7 @@ impl RustApplication {
     async fn after_refresh(&self) {
         let application_context = self.get_application_context().await;
         application_context.after_refresh().await;
-        let application_type = self.application_properties.web_application_type;
+        let application_type = self.properties.web_application_type;
         match application_type {
             WebApplicationType::NONE => {
                 let start_up = self.start_up.read().await;
