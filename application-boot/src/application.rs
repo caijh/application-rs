@@ -3,6 +3,7 @@ use crate::application_listener::{
     ApplicationListener, ApplicationStartingEventListener, BootstrapConfigFileApplicationListener,
     DiscoveryDeRegistryApplicationListener, DiscoveryRegistryApplicationListener,
 };
+use crate::application_properties::ApplicationProperties;
 use crate::application_run_listener::{ApplicationRunListeners, EventPublishingRunListener};
 use crate::cloud::bootstrap::initializer::ConsulBootstrapRegistryInitializer;
 use crate::context::application_event_multi_caster::ApplicationEventMultiCaster;
@@ -14,6 +15,7 @@ use crate::initializer::{
 };
 use crate::logging::listener::{LoggingApplicationListener, LoggingCleanApplicationListener};
 use crate::web::context::{ServletWebServerApplicationContext, WebServerApplicationContext};
+use crate::web_application_type::WebApplicationType;
 use application_beans::factory::bean_factory::ConfigurableBeanFactory;
 use application_context::context::application_context::{
     ConfigurableApplicationContext, GenericApplicationContext, APPLICATION_CONTEXT,
@@ -34,7 +36,6 @@ use tokio::sync::{RwLock, RwLockReadGuard};
 use tower_http::timeout::TimeoutLayer;
 use tower_http::trace::TraceLayer;
 use tracing::{debug, info};
-use crate::application_type::WebApplicationType;
 
 #[async_trait]
 trait Startup: Send + Sync {
@@ -78,7 +79,7 @@ impl Startup for StandardStartup {
 
 pub struct RustApplication {
     pub crate_name: String,
-    pub application_type: WebApplicationType,
+    pub application_properties: ApplicationProperties,
     pub bootstrap_registry_initializers: Arc<RwLock<Vec<Box<dyn BootstrapRegistryInitializer>>>>,
     pub initializers: Arc<RwLock<Vec<Box<dyn ApplicationContextInitializer>>>>,
     pub listeners: Arc<RwLock<Vec<Box<dyn ApplicationListener>>>>,
@@ -98,7 +99,9 @@ impl RustApplication {
     pub fn new(crate_name: &str, application_type: WebApplicationType) -> Self {
         RustApplication {
             crate_name: crate_name.to_string(),
-            application_type,
+            application_properties: ApplicationProperties {
+                web_application_type: application_type,
+            },
             bootstrap_registry_initializers: Arc::new(RwLock::new(vec![Box::new(
                 ConsulBootstrapRegistryInitializer {},
             )])),
@@ -278,7 +281,8 @@ impl RustApplication {
 
     pub fn create_application_context(&self) {
         debug!("create_application_context");
-        let context: Box<dyn ConfigurableApplicationContext> = match self.application_type {
+        let application_type = self.application_properties.web_application_type;
+        let context: Box<dyn ConfigurableApplicationContext> = match application_type {
             WebApplicationType::NONE => Box::new(GenericApplicationContext::default()),
             WebApplicationType::WEB => Box::new(ServletWebServerApplicationContext::default()),
         };
@@ -324,7 +328,8 @@ impl RustApplication {
     async fn after_refresh(&self) {
         let application_context = self.get_application_context().await;
         application_context.after_refresh().await;
-        match self.application_type {
+        let application_type = self.application_properties.web_application_type;
+        match application_type {
             WebApplicationType::NONE => {
                 let start_up = self.start_up.read().await;
                 start_up.started().await;
