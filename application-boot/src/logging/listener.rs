@@ -1,6 +1,6 @@
 use crate::application::{Application, RustApplication};
 use crate::application_listener::ApplicationListener;
-use crate::context::bootstrap_context::{BootstrapContext, DefaultBootstrapContext};
+use crate::bootstrap::default_bootstrap_context::DefaultBootstrapContext;
 use crate::env::properties::BootstrapProperties;
 use crate::logging::LOGGING_SYSTEM;
 use application_beans::factory::bean_factory::BeanFactory;

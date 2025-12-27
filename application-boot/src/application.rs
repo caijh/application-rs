@@ -4,24 +4,26 @@ use crate::application_listener::{
     DiscoveryDeRegistryApplicationListener, DiscoveryRegistryApplicationListener,
 };
 use crate::application_properties::ApplicationProperties;
-use crate::application_run_listener::{ApplicationRunListeners, EventPublishingRunListener};
-use crate::cloud::bootstrap::initializer::ConsulBootstrapRegistryInitializer;
+use crate::application_run_listeners::{ApplicationRunListeners, EventPublishingRunListener};
+use crate::bootstrap::bootstrap_registry_initializer::BootstrapRegistryInitializer;
+use crate::bootstrap::default_bootstrap_context::DefaultBootstrapContext;
+use crate::bootstrap::initializer::ConsulBootstrapRegistryInitializer;
 use crate::context::application_event_multi_caster::ApplicationEventMultiCaster;
-use crate::context::bootstrap_context::{BootstrapContext, DefaultBootstrapContext};
 use crate::env::properties::BootstrapProperties;
 use crate::initializer::{
-    ActuatorRouterInitializer, ApplicationContextInitializer, BootstrapRegistryInitializer,
+    ActuatorRouterInitializer, ApplicationContextInitializer,
     ContextIdApplicationContextInitializer, ServletContextInitializer,
 };
 use crate::logging::listener::{LoggingApplicationListener, LoggingCleanApplicationListener};
 use crate::web::context::{ServletWebServerApplicationContext, WebServerApplicationContext};
 use crate::web_application_type::WebApplicationType;
-use application_beans::factory::bean_factory::ConfigurableBeanFactory;
+use application_beans::factory::bean_factory::{BeanFactory, ConfigurableBeanFactory};
 use application_context::context::application_context::{
     ConfigurableApplicationContext, GenericApplicationContext, APPLICATION_CONTEXT,
 };
 use application_core::env::environment::{ApplicationEnvironment, ConfigurableEnvironment};
 use application_core::env::property::PropertySource;
+use application_core::metrics::default_application_startup::DefaultApplicationStartup;
 use async_std::task::block_on;
 use async_trait::async_trait;
 use axum::Router;
@@ -146,6 +148,7 @@ impl RustApplication {
 
     fn get_application_run_listeners(&self) -> &ApplicationRunListeners {
         APPLICATION_RUN_LISTENERS.get_or_init(|| ApplicationRunListeners {
+            application_startup: Arc::new(RwLock::new(Box::new(DefaultApplicationStartup))),
             listeners: Arc::new(RwLock::new(vec![Box::new(EventPublishingRunListener {
                 initial_multicast: Arc::new(ApplicationEventMultiCaster {}),
             })])),
@@ -304,13 +307,16 @@ impl RustApplication {
 
             self.apply_initializers(&application_context).await;
         }
-
+        let application_context = self.get_application_context().await;
+        let bootstrap_context = application_context
+            .get_bean_factory()
+            .get::<DefaultBootstrapContext>();
         let listeners = self.get_application_run_listeners();
-        listeners.context_prepared(self).await;
+        listeners.context_prepared(self, &bootstrap_context).await;
 
         self.load();
 
-        listeners.context_loaded(self).await;
+        listeners.context_loaded(self, &bootstrap_context).await;
 
         Ok(())
     }
@@ -393,24 +399,31 @@ impl RustApplication {
 
     fn load(&self) {}
 
-    async fn starting(&self, bootstrap_context: &DefaultBootstrapContext) {
-        let listeners = self.get_application_run_listeners();
-        listeners.starting(self, bootstrap_context).await;
-    }
-
     pub async fn started(&self) {
         let listeners = self.get_application_run_listeners();
-        listeners.started(self).await;
+        let application_context = self.get_application_context().await;
+        let bootstrap_context = application_context
+            .get_bean_factory()
+            .get::<DefaultBootstrapContext>();
+        listeners.started(self, &bootstrap_context).await;
     }
 
     async fn stopped(&self) {
         let listeners = self.get_application_run_listeners();
-        listeners.stopped(self).await;
+        let application_context = self.get_application_context().await;
+        let bootstrap_context = application_context
+            .get_bean_factory()
+            .get::<DefaultBootstrapContext>();
+        listeners.stopped(self, &bootstrap_context).await;
     }
 
     async fn failed(&self) {
         let listeners = self.get_application_run_listeners();
-        listeners.failed(self).await;
+        let application_context = self.get_application_context().await;
+        let bootstrap_context = application_context
+            .get_bean_factory()
+            .get::<DefaultBootstrapContext>();
+        listeners.failed(self, &bootstrap_context).await;
     }
 
     async fn set_start_up(&self, start_up: StandardStartup) {
@@ -498,7 +511,8 @@ impl Application for RustApplication {
 
         let bootstrap_context = self.create_bootstrap_context().await;
 
-        self.starting(&bootstrap_context).await;
+        let listeners = self.get_application_run_listeners();
+        listeners.starting(self, &bootstrap_context).await;
 
         self.create_application_context();
 

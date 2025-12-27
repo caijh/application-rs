@@ -1,16 +1,11 @@
-use crate::context::bootstrap_context::DefaultBootstrapContext;
 use application_beans::factory::bean_factory::ConfigurableBeanFactory;
 use application_context::context::application_context::ConfigurableApplicationContext;
 use application_core::env::property_resolver::PropertyResolver;
-use async_trait::async_trait;
-use axum::Router;
-use axum::routing::get;
-use tracing::info;
 use application_web_actuator::health::health_check;
-
-pub trait BootstrapRegistryInitializer: Send + Sync {
-    fn initial(&self, context: &DefaultBootstrapContext);
-}
+use async_trait::async_trait;
+use axum::routing::get;
+use axum::Router;
+use tracing::info;
 
 pub trait ApplicationContextInitializer: Send + Sync {
     fn initialize(&self, application_context: &Box<dyn ConfigurableApplicationContext>);
@@ -27,7 +22,6 @@ impl ServletContextInitializer for ActuatorRouterInitializer {
         router.route("/actuator/health", get(health_check))
     }
 }
-
 
 pub struct ContextIdApplicationContextInitializer {}
 

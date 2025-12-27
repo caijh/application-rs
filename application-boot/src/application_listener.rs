@@ -1,11 +1,13 @@
+use crate::bootstrap::bootstrap_context::BootstrapContext;
 use std::collections::HashMap;
 use std::error::Error;
 
 use crate::application::{Application, RustApplication};
+use crate::bootstrap::bootstrap_registry::BootstrapRegistry;
+use crate::bootstrap::default_bootstrap_context::DefaultBootstrapContext;
 use crate::cloud::client::registry::{
     ConsulServiceRegistry, Registration, ServiceCheck, ServiceInstance, ServiceRegistry,
 };
-use crate::context::bootstrap_context::{BootstrapContext, DefaultBootstrapContext};
 use crate::env::configuration::{Configuration, ConfigurationResolver};
 use crate::logging::listener::ApplicationStartingEvent;
 use application_beans::factory::bean_factory::BeanFactory;
@@ -110,7 +112,7 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
         let properties = &bootstrap_context.get_bootstrap_properties();
         if let Some(cloud) = &properties.application.cloud {
             if let Some(discovery) = &cloud.discovery {
-                let registry = bootstrap_context.get::<ConsulServiceRegistry>();
+                let registry = bootstrap_context.get::<ConsulServiceRegistry>().unwrap();
                 let service_id = &properties.application.name;
                 let local_ip = LocalIp::get_local_addr_ip().unwrap();
                 let mut host = match hostname::get() {
@@ -151,7 +153,7 @@ impl ApplicationListener for DiscoveryRegistryApplicationListener {
                 };
                 registry.register(&registration).await?;
                 info!("Register {:?}", registration);
-                bootstrap_context.set(registration);
+                bootstrap_context.register(registration);
             }
         }
         Ok(())
@@ -176,9 +178,9 @@ impl ApplicationListener for DiscoveryDeRegistryApplicationListener {
         let bootstrap_context = application_context
             .get_bean_factory()
             .get::<DefaultBootstrapContext>();
-        let registration = bootstrap_context.try_get::<Registration>();
+        let registration = bootstrap_context.get::<Registration>();
         if let Some(service_instance) = registration {
-            let registry = bootstrap_context.get::<ConsulServiceRegistry>();
+            let registry = bootstrap_context.get::<ConsulServiceRegistry>().unwrap();
             let _ = registry.deregister(service_instance).await?;
             info!("DeRegister {:?}", service_instance);
         }
