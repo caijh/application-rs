@@ -35,7 +35,7 @@ impl WebServer for AxumServer {
 
         // run it with hyper on localhost
         let addr = SocketAddr::from(([0, 0, 0, 0], self.port));
-        let tcp_listener = block_on(TcpListener::bind(addr)).unwrap();
+        let tcp_listener = block_on(TcpListener::bind(addr))?;
         info!("Start axum server, listening on {}", addr);
 
         let pair = Arc::new((Mutex::new(false), Condvar::new()));
