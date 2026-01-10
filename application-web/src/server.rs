@@ -1,6 +1,7 @@
 use crate::handler::auto_router;
 use async_std::task::block_on;
-use axum::{async_trait, Router};
+use async_trait::async_trait;
+use axum::Router;
 use axum_server::Handle;
 use std::error::Error;
 use std::net::SocketAddr;
@@ -62,7 +63,7 @@ impl AxumServer {
     }
 }
 
-async fn shutdown_signal(handle: Handle, condvar_pair: Arc<(Mutex<bool>, Condvar)>) {
+async fn shutdown_signal(handle: Handle<SocketAddr>, condvar_pair: Arc<(Mutex<bool>, Condvar)>) {
     let ctrl_c = async {
         signal::ctrl_c()
             .await

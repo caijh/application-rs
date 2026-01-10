@@ -26,6 +26,7 @@ use application_core::env::property::PropertySource;
 use application_core::metrics::default_application_startup::DefaultApplicationStartup;
 use async_std::task::block_on;
 use async_trait::async_trait;
+use axum::http::StatusCode;
 use axum::Router;
 use clap::crate_name;
 use config::Config;
@@ -360,7 +361,10 @@ impl RustApplication {
                     TraceLayer::new_for_http(),
                     // Graceful shutdown will wait for outstanding requests to complete. Add a timeout so
                     // requests don't hang forever.
-                    TimeoutLayer::new(Duration::from_secs(30)),
+                    TimeoutLayer::with_status_code(
+                        StatusCode::REQUEST_TIMEOUT,
+                        Duration::from_secs(30),
+                    ),
                 ));
 
                 for initializer in servlet_context_initializers {
