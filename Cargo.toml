@@ -42,7 +42,7 @@ async-std = "1.13.0"
 tempfile = "3.27.0"
 axum = "0.8.8"
 axum-server = "0.8.0"
-askama = { version = "0.15.5" }
+askama = { version = "0.16.0" }
 tower = { version = "0.5.3", features = ["util"] }
 tower-http = { version = "0.6.2", features = ["timeout", "trace"] }
 tower-service = "0.3.3"
